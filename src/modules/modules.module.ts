@@ -5,5 +5,6 @@ import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [ProductsModule, CategoryModule, ImagesModule],
+  exports: [ProductsModule, CategoryModule, ImagesModule],
 })
 export class ModulesModule {}
