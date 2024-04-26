@@ -18,8 +18,8 @@ export class Product {
   @Column('int', { default: 0 })
   stock: number;
 
-  @Column('text', { nullable: true })
-  image: string;
+  @Column('text', { nullable: true, array: true })
+  images: string[];
 
   @ManyToOne(() => Category, (Category) => Category.id, { cascade: true })
   category: Category;

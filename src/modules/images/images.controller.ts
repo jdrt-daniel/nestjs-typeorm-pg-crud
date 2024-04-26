@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ImagesService } from './images.service';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  BadRequestException,
+  UploadedFiles,
+} from '@nestjs/common';
+import { CloudinaryService } from 'nestjs-cloudinary';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
+import { FileFilter } from './helpers/fileFilter';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('images')
 @Controller('images')
 export class ImagesController {
-  constructor(private readonly imagesService: ImagesService) {}
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
 
-  @Post()
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.imagesService.create(createImageDto);
-  }
+  @Post('upload')
+  @UseInterceptors(
+    FilesInterceptor('files[]', 4, {
+      fileFilter: FileFilter,
+    }),
+  )
+  async uploadCloudinaryFile(
+    @UploadedFiles()
+    files: Express.Multer.File[],
+  ) {
+    if (!files) {
+      throw new BadRequestException('Make sure that file is a image');
+    }
 
-  @Get()
-  findAll() {
-    return this.imagesService.findAll();
-  }
+    const uploadedFiles = await Promise.all(
+      files.map(async (file) => {
+        return await this.cloudinaryService.uploadFile(file, {
+          resource_type: 'image',
+        });
+      }),
+    );
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.imagesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.imagesService.update(+id, updateImageDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.imagesService.remove(+id);
+    return uploadedFiles;
   }
 }
