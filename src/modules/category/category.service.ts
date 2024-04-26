@@ -1,26 +1,63 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { Category } from './entities/category.entity';
+import { handleError } from 'src/common';
 
 @Injectable()
 export class CategoryService {
-  create(createCategoryDto: CreateCategoryDto) {
-    return 'This action adds a new category';
+  constructor(
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
+  ) {}
+
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+    try {
+      // create a new category
+      const category = this.categoryRepository.create(createCategoryDto);
+      // save the category
+      return await this.categoryRepository.save(category);
+    } catch (error) {
+      handleError(error);
+    }
   }
 
-  findAll() {
-    return `This action returns all category`;
+  async findAll(): Promise<Category[]> {
+    // find all categories
+    return await this.categoryRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: string): Promise<Category> {
+    // find the category by id
+    const category = await this.categoryRepository.findOneBy({ id });
+    if (!category) {
+      throw new NotFoundException(`Category with id ${id} not found`);
+    }
+    return category;
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  async update(
+    id: string,
+    updateCategoryDto: UpdateCategoryDto,
+  ): Promise<Category> {
+    try {
+      // find the category by id
+      const category = await this.findOne(id);
+      // update the category with the new data
+      this.categoryRepository.merge(category, updateCategoryDto);
+      // save the updated category
+      return await this.categoryRepository.save(category);
+    } catch (error) {
+      handleError(error);
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: string): Promise<void> {
+    // find the category by id
+    const category = await this.findOne(id);
+    // remove the category
+    await this.categoryRepository.remove(category);
   }
 }

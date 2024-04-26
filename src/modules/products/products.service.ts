@@ -25,7 +25,7 @@ export class ProductsService {
     }
   }
 
-  findAll() {
+  async findAll(): Promise<Product[]> {
     try {
       // Find all products
       return this.productRepository.find({ skip: 0, take: 10 });
@@ -59,7 +59,14 @@ export class ProductsService {
     }
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} product`;
+  async remove(id: string): Promise<void> {
+    try {
+      // Find the product by id
+      const product = await this.findOne(id);
+      // Remove the product from the database
+      await this.productRepository.remove(product);
+    } catch (error) {
+      handleError(error);
+    }
   }
 }
