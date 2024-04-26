@@ -14,8 +14,10 @@ export class CreateProductDto {
   @ApiProperty()
   readonly price: number;
 
-  //   readonly image: string;
-  //   readonly category: string;
+  @IsString()
+  @ApiProperty()
+  readonly categoryId: string;
+
   @IsNumber()
   @IsOptional()
   @ApiProperty()

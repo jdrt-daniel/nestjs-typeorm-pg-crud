@@ -14,10 +14,17 @@ export class ProductsService {
     private productRepository: Repository<Product>,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  async create(
+    createProductDto: CreateProductDto,
+    images: string[],
+  ): Promise<Product> {
     try {
       // Create a new product
-      const newProduct = this.productRepository.create(createProductDto);
+      const newProduct = this.productRepository.create({
+        ...createProductDto,
+        images,
+        category: { id: createProductDto.categoryId },
+      });
       // Save the product to the database
       return this.productRepository.save(newProduct);
     } catch (error) {
@@ -55,7 +62,10 @@ export class ProductsService {
       // Find the product by id
       const product = await this.findOne(id);
       // Update the product with the new data
-      this.productRepository.merge(product, updateProductDto);
+      this.productRepository.merge(product, {
+        ...updateProductDto,
+        category: { id: updateProductDto.categoryId },
+      });
       // Save the updated product to the database
       return this.productRepository.save(product);
     } catch (error) {
