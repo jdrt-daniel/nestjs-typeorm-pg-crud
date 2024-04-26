@@ -28,7 +28,11 @@ export class ProductsService {
   async findAll(): Promise<Product[]> {
     try {
       // Find all products
-      return this.productRepository.find({ skip: 0, take: 10 });
+      return this.productRepository.find({
+        skip: 0,
+        take: 10,
+        relations: ['category'],
+      });
     } catch (error) {
       handleError(error);
     }

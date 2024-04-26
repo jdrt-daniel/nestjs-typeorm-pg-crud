@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Category } from 'src/modules/category/entities/category.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Product {
@@ -20,8 +21,11 @@ export class Product {
   @Column('text', { nullable: true })
   image: string;
 
-  @Column('text', { nullable: true })
-  category: string;
+  @ManyToOne(() => Category, (Category) => Category.id, { cascade: true })
+  category: Category;
+
+  @Column('bool', { default: true })
+  isActive: boolean;
 
   @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
