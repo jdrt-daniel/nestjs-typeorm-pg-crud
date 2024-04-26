@@ -2,6 +2,10 @@
 
 A small example with postgres and swagger for CRUD functions
 
+## Cloudinary
+
+Create an account in cloudinary.com for key insertion
+
 # Run application
 
 - Execute the command ```npm install```
@@ -19,3 +23,4 @@ A small example with postgres and swagger for CRUD functions
     npm run dev
     npm run prod
   ```
+- Enter the route ```http://localhost:4000/swagger``` and execute the seed method
